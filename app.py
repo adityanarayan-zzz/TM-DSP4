@@ -97,7 +97,7 @@ def predict_clusters(df_raw: pd.DataFrame) -> pd.DataFrame:
 
 st.title("💳 Segmentasi Nasabah Kartu Kredit")
 
-tab1, tab2 = st.tabs(["🧍 Input Manual (1 Nasabah)", "📁 Upload CSV (Banyak Nasabah)"])
+tab1, tab2 = st.tabs(["Input Manual (1 Nasabah)"])
 
 
 with tab1:
@@ -166,39 +166,5 @@ with tab1:
             st.dataframe(compare_df, use_container_width=True)
         except Exception as e:
             st.error(f"Terjadi kesalahan saat prediksi: {e}")
-
-
-with tab2:
-    st.subheader("Unggah File CSV Berisi Data Banyak Nasabah")
-    st.caption(
-        "File CSV harus memiliki kolom yang sama dengan dataset training "
-        "(lihat contoh kolom pada bagian 'Tentang Aplikasi' di atas)."
-    )
-    uploaded_file = st.file_uploader("Pilih file CSV", type=["csv"])
-
-    if uploaded_file is not None:
-        try:
-            df_upload = pd.read_csv(uploaded_file)
-            st.write("Pratinjau data:", df_upload.head())
-
-            result = predict_clusters(df_upload)
-            st.success(f"Berhasil memprediksi segmen untuk {len(result)} nasabah.")
-
-            st.markdown("**Distribusi Segmen:**")
-            dist = result["Segmen"].value_counts()
-            st.bar_chart(dist)
-
-            st.markdown("**Hasil Prediksi:**")
-            st.dataframe(result, use_container_width=True)
-
-            csv_out = result.to_csv(index=False).encode("utf-8")
-            st.download_button(
-                "⬇️ Unduh Hasil Prediksi (CSV)",
-                data=csv_out,
-                file_name="hasil_segmentasi_nasabah.csv",
-                mime="text/csv",
-            )
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat memproses file: {e}")
 
 st.divider()
