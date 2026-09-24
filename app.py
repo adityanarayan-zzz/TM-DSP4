@@ -97,7 +97,7 @@ def predict_clusters(df_raw: pd.DataFrame) -> pd.DataFrame:
 
 st.title("💳 Segmentasi Nasabah Kartu Kredit")
 
-tab1, tab2 = st.tabs(["Input Manual (1 Nasabah)"])
+tab1= st.tabs(["🧍 Input Manual (1 Nasabah)", "📁 Upload CSV (Banyak Nasabah)"])
 
 
 with tab1:
