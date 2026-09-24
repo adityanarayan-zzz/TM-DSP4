@@ -1,11 +1,3 @@
-"""
-Aplikasi Streamlit — Segmentasi Nasabah Kartu Kredit (K-Means Clustering)
-Tugas Mandiri Pertemuan 4 - CRISP-DM Deployment
-Universitas Gunadarma
-
-Cara menjalankan lokal:
-    streamlit run app.py
-"""
 
 import json
 
@@ -104,22 +96,6 @@ def predict_clusters(df_raw: pd.DataFrame) -> pd.DataFrame:
 
 
 st.title("💳 Segmentasi Nasabah Kartu Kredit")
-st.caption(
-    "Aplikasi deployment model **K-Means Clustering** — Tugas Mandiri CRISP-DM, "
-    "Pertemuan 4, Universitas Gunadarma."
-)
-
-with st.expander("ℹ️ Tentang Aplikasi & Profil Segmen Hasil Clustering", expanded=False):
-    st.markdown(
-        """
-        Aplikasi ini memprediksi **segmen perilaku nasabah kartu kredit** berdasarkan model
-        K-Means yang telah dilatih pada notebook `Pertemuan_4_Deployment_Tugas_Mandiri.ipynb`
-        menggunakan dataset *Credit Card Dataset for Clustering* (± 8.950 nasabah, sumber: Kaggle).
-        """
-    )
-    for idx, info in CLUSTER_LABELS.items():
-        st.markdown(f"**Segmen {idx} — {info['name']}**  \n{info['desc']}")
-    st.dataframe(cluster_profile, use_container_width=True)
 
 tab1, tab2 = st.tabs(["🧍 Input Manual (1 Nasabah)", "📁 Upload CSV (Banyak Nasabah)"])
 
@@ -226,7 +202,3 @@ with tab2:
             st.error(f"Terjadi kesalahan saat memproses file: {e}")
 
 st.divider()
-st.caption(
-    "Model: K-Means Clustering · Tugas Mandiri Pertemuan 4 — CRISP-DM Deployment · "
-    "Universitas Gunadarma © 2026"
-)
