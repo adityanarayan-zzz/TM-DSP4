@@ -14,18 +14,14 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-# ----------------------------------------------------------------------------
-# Konfigurasi halaman
-# ----------------------------------------------------------------------------
+
 st.set_page_config(
     page_title="Segmentasi Nasabah Kartu Kredit",
     page_icon="💳",
     layout="wide",
 )
 
-# ----------------------------------------------------------------------------
-# Load model, scaler, dan konfigurasi (di-cache agar tidak reload setiap interaksi)
-# ----------------------------------------------------------------------------
+
 @st.cache_resource
 def load_artifacts():
     model = joblib.load("kmeans_model.joblib")
@@ -43,10 +39,7 @@ LOG_FEATURES = config["log_transform_features"]
 MODEL_FEATURE_ORDER = config["model_feature_order"]
 
 
-# ----------------------------------------------------------------------------
-# Penamaan & interpretasi cluster secara dinamis berdasarkan cluster_profile.csv
-# (dibuat dinamis agar tetap valid meskipun model dilatih ulang & urutan cluster berubah)
-# ----------------------------------------------------------------------------
+
 def build_cluster_labels(profile: pd.DataFrame) -> dict:
     labels = {}
     cash_rank = profile["CASH_ADVANCE"].rank(ascending=False)
@@ -75,33 +68,26 @@ def build_cluster_labels(profile: pd.DataFrame) -> dict:
 
 CLUSTER_LABELS = build_cluster_labels(cluster_profile)
 
-# ----------------------------------------------------------------------------
-# Fungsi preprocessing — HARUS identik dengan notebook (Data Preparation)
-# ----------------------------------------------------------------------------
+
 def preprocess(df_raw: pd.DataFrame) -> pd.DataFrame:
     df = df_raw.copy()
 
-    # Pastikan semua kolom mentah tersedia
     for col in RAW_FEATURES:
         if col not in df.columns:
             raise ValueError(f"Kolom wajib hilang: {col}")
 
-    # Imputasi median untuk kemungkinan missing values
     for col in ["CREDIT_LIMIT", "MINIMUM_PAYMENTS"]:
         df[col] = df[col].fillna(df[col].median() if df[col].notna().any() else 0)
 
-    # Feature engineering (identik dengan notebook)
     df["AVG_PURCHASE_TRX"] = df["PURCHASES"] / df["PURCHASES_TRX"].replace(0, np.nan)
     df["AVG_PURCHASE_TRX"] = df["AVG_PURCHASE_TRX"].fillna(0)
 
     df["LIMIT_USAGE"] = df["BALANCE"] / df["CREDIT_LIMIT"].replace(0, np.nan)
     df["LIMIT_USAGE"] = df["LIMIT_USAGE"].fillna(0).clip(upper=3)
 
-    # Log transform fitur yang sangat menceng
     for col in LOG_FEATURES:
         df[col] = np.log1p(df[col].clip(lower=0))
 
-    # Urutkan kolom sesuai urutan fitur saat training
     df_model = df[MODEL_FEATURE_ORDER]
     return df_model
 
@@ -116,9 +102,7 @@ def predict_clusters(df_raw: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
-# ----------------------------------------------------------------------------
-# UI — Header
-# ----------------------------------------------------------------------------
+
 st.title("💳 Segmentasi Nasabah Kartu Kredit")
 st.caption(
     "Aplikasi deployment model **K-Means Clustering** — Tugas Mandiri CRISP-DM, "
@@ -139,9 +123,7 @@ with st.expander("ℹ️ Tentang Aplikasi & Profil Segmen Hasil Clustering", exp
 
 tab1, tab2 = st.tabs(["🧍 Input Manual (1 Nasabah)", "📁 Upload CSV (Banyak Nasabah)"])
 
-# ----------------------------------------------------------------------------
-# TAB 1 — Input manual
-# ----------------------------------------------------------------------------
+
 with tab1:
     st.subheader("Masukkan Data Perilaku Kartu Kredit Nasabah")
     col1, col2, col3 = st.columns(3)
@@ -209,9 +191,7 @@ with tab1:
         except Exception as e:
             st.error(f"Terjadi kesalahan saat prediksi: {e}")
 
-# ----------------------------------------------------------------------------
-# TAB 2 — Upload CSV
-# ----------------------------------------------------------------------------
+
 with tab2:
     st.subheader("Unggah File CSV Berisi Data Banyak Nasabah")
     st.caption(
